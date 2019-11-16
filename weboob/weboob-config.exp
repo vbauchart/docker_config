@@ -1,0 +1,4 @@
+spawn weboob-config update
+expect "Are you sure you want to continue? (Y/n):"
+send "Y\n"
+expect eof
