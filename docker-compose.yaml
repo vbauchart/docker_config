@@ -1,0 +1,216 @@
+version: "2"
+services:
+  transmission:
+    build: ./transmission
+    image: transmission:latest
+    ports:
+      - "51413:51413/udp"
+      - "51413:51413"
+    networks:
+      - webgateway
+    volumes:
+      - /home/vincent/downloads:/var/lib/transmission-daemon/downloads
+      - /home/docker/build/transmission/cfg/:/etc/transmission-daemon/
+    restart: always
+    labels:
+      - "traefik.http.services.transmission.loadbalancer.server.port=9091"
+      - "traefik.http.routers.transmission.rule=Host(`${HOST_URL}`) && PathPrefix(`/transmission`)"
+      - "traefik.http.routers.transmission.entrypoints=https"
+      - "traefik.http.routers.transmission.tls=true"
+      - "traefik.http.routers.transmission.tls.certresolver=default"
+      - "traefik.enable=true"
+        #  syncthing:
+        #    build: ./syncthing/docker
+        #    image: syncthing:latest
+        #    networks:
+        #      - webgateway
+        #    volumes:
+        #      - /home/vincent/docker/syncthing:/var/syncthing
+        #    restart: always
+        #    ports:
+        #      - "22000:22000"
+        #      - "8384:8384"
+  nextcloud:
+    build: ./docker-nextcloud
+    image: nextcloud:latest
+    networks:
+      - webgateway
+    volumes:
+      - /home/vincent/docker/nextcloud:/data/
+      - /home/vincent/downloads:/external/downloads
+    restart: always
+    labels:
+      - "traefik.http.routers.nextcloud.rule=Host(`${HOST_URL}`) && PathPrefix(`/nextcloud`)"
+      - "traefik.http.routers.nextcloud.entrypoints=https"
+      - "traefik.http.routers.nextcloud.tls=true"
+      - "traefik.http.routers.nextcloud.tls.certresolver=default"
+      - "traefik.http.routers.nextcloud.middlewares=nextcloud-stripprefix"
+      - "traefik.http.middlewares.nextcloud-stripprefix.stripprefix.prefixes=/nextcloud"
+      - "traefik.enable=true"
+  database:
+    build: ./postgres/9.6/alpine/
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD:
+    networks:
+      - webgateway
+    restart: always
+    volumes:
+      - /home/vincent/docker/postgres:/var/lib/postgresql/data
+    labels:
+      - "traefik.enable=false"
+  downloads-ftp:
+    build: ./ftp
+    volumes:
+      - /home/vincent/downloads:/home/films
+    restart: always
+    ports:
+        - "21:21"
+        - "21200-21220:21200-21220"
+  downloads:
+    build: ./nginx
+    volumes:
+      - /home/vincent/downloads:/var/www/html
+    restart: always
+    labels:
+      - "traefik.http.routers.downloads-http.rule=Host(`${HOST_URL}`) && PathPrefix(`/downloads-${DOWNLOADS_TOKEN}`)"
+      - "traefik.http.routers.downloads-http.entrypoints=https"
+      - "traefik.http.routers.downloads-http.tls=true"
+      - "traefik.http.routers.downloads-http.tls.certresolver=default"
+      - "traefik.http.routers.downloads-http.middlewares=downloads-http-redirect-slash,downloads-http-stripprefix"
+      - "traefik.http.middlewares.downloads-http-stripprefix.stripprefix.prefixes=/downloads-${DOWNLOADS_TOKEN}"
+      - "traefik.http.middlewares.downloads-http-redirect-slash.redirectregex.regex=^(https://${HOST_URL}/downloads-${DOWNLOADS_TOKEN})$$"
+      - "traefik.http.middlewares.downloads-http-redirect-slash.redirectregex.replacement=$${1}/"
+      - "traefik.enable=true"
+    networks:
+      - webgateway
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - /home/vincent/docker/grafana/:/var/lib/grafana/
+    environment:
+      GF_SERVER_ROOT_URL: "https://ns340950.ip-37-59-41.eu/grafana/"
+      GF_SECURITY_ADMIN_PASSWORD:
+      GF_SMTP_HOST: "mailhog:1025"
+      GF_SMTP_ENABLED: "true"
+    restart: always
+    labels:
+      - "traefik.http.routers.grafana.rule=Host(`${HOST_URL}`) && PathPrefix(`/grafana`)"
+      - "traefik.http.routers.grafana.entrypoints=https"
+      - "traefik.http.routers.grafana.tls=true"
+      - "traefik.http.routers.grafana.tls.certresolver=default"
+      - "traefik.http.routers.grafana.middlewares=grafana-stripprefix"
+      - "traefik.http.middlewares.grafana-stripprefix.stripprefix.prefixes=/grafana"
+      - "traefik.enable=true"
+    networks:
+      - webgateway
+  telegraf:
+    build: ./influxdata-docker/telegraf/1.9/alpine
+    image: telegraf
+    hostname: kimsufi
+    volumes:
+    - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
+    - /var/run/utmp:/var/run/utmp
+    - monitoring:/weboob_output/
+    - /tmp/telegraf:/tmp/telegraf/
+    restart: always
+    networks:
+      - webgateway
+    labels:
+      - "traefik.enable=false"
+  influxdb:
+    build: ./influxdata-docker/influxdb/1.7/alpine
+    image: influxdb:alpine
+    volumes:
+      - /home/vincent/docker/influxdb/:/var/lib/influxdb/
+    environment:
+      INFLUXDB_DB: "homedb"
+      INFLUXDB_ADMIN_ENABLED: "true"
+      INFLUXDB_ADMIN_USER: "admin"
+      INFLUXDB_ADMIN_PASSWORD:
+      INFLUXDB_HTTP_AUTH_ENABLED: "true"
+      INFLUXDB_USER: "telegraf"
+      INFLUXDB_USER_PASSWORD:
+    restart: always
+    labels:
+            #- "traefik.backend=influxdb"
+            #- "traefik.port=8086"
+            #- "traefik.frontend.rule=PathPrefixStrip:/influxdb"
+            #- "traefik.enable=true"
+      - "traefik.http.routers.influxdb.rule=Host(`${HOST_URL}`) && PathPrefix(`/influxdb`)"
+      - "traefik.http.routers.influxdb.entrypoints=https"
+      - "traefik.http.routers.influxdb.tls=true"
+      - "traefik.http.routers.influxdb.tls.certresolver=default"
+      - "traefik.http.routers.influxdb.middlewares=influxdb-stripprefix"
+      - "traefik.http.middlewares.influxdb-stripprefix.stripprefix.prefixes=/influxdb"
+      - "traefik.http.services.influxdb.loadbalancer.server.port=8086"
+      - "traefik.enable=true"
+    networks:
+      - webgateway
+        #  mailhog:
+        #    build: ./mailhog/MailHog
+        #    image: mailhog
+        #    environment:
+        #      MH_UI_WEB_PATH: "mailhog"
+        #    restart: always
+        #    labels:
+        #      - "traefik.backend=mailhog"
+        #      - "traefik.port=8025"
+        #      - "traefik.frontend.rule=PathPrefix:/mailhog"
+        #      - "traefik.enable=true"
+        #      - "traefik.frontend.auth.basic=admin:$$apr1$$OrF9bgTu$$VC9z4MV/aR3MPBceO55JP1"
+        #    networks:
+        #      - webgateway
+        #    ports:
+        #      - "127.0.0.1:25:1025"
+  traefik:
+    image: traefik:2.0
+    #command: --api --docker
+    networks:
+      - webgateway
+    ports:
+      - "443:443"
+      - "80:80"
+      - "8080:8080"
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/docker/build/traefik/cfg/traefik.yml:/traefik.yml
+      - /home/docker/build/traefik/cfg/acme.json:/acme.json
+  weboob:
+    build: ./weboob/
+    image: weboob:custom
+    volumes:
+            #- /root/.gnupg/:/root/.gnupg/:ro
+      - /root/.password-store/:/root/.password-store/:ro
+      - /home/vincent/encfs_mount/weboob:/root/.config/weboob
+      - /home/vincent/encfs_mount/weboob/pass.txt:/home/vincent/encfs_mount/weboob/pass.txt:ro
+      - monitoring:/weboob_output/
+      - /tmp/weboob:/tmp/weboob/
+    labels:
+      - "traefik.enable=false"
+        #  ejabberd:
+        #    build: ./ejabberd
+        #    image: ejabberd
+        #    volumes:
+        #      - /home/vincent/docker/ejabberd/ejabberd.pem:/etc/ejabberd/ejabberd.pem
+        #      - /home/vincent/docker/ejabberd/ejabberd.yml:/etc/ejabberd/ejabberd.yml
+        #      - /home/vincent/docker/ejabberd/xcauth.conf:/etc/xcauth.conf:ro
+        #    ports:
+        #      - "5222:5222"
+        #      - "5269:5269"
+        #    networks:
+        #      - webgateway
+        #    restart: always
+        #    labels:
+        #      - "traefik.backend=ejabberd_http"
+        #      - "traefik.port=5280"
+        #      - "traefik.frontend.rule=PathPrefix:/ejabberd"
+        #      - "traefik.enable=true"
+
+networks:
+  webgateway:
+    driver: bridge
+
+volumes:
+  monitoring:
