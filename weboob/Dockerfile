@@ -13,6 +13,7 @@ RUN apt update && \
 #    python setup.py install
 
 RUN pip3 install git+https://git.weboob.org/weboob/weboob.git
+RUN pip3 install pdfminer
 
 ENV LANG=C.UTF-8
 
