@@ -5,12 +5,12 @@ RUN apt update && \
     apt clean
 
 COPY vsftpd.conf /etc/vsftpd.conf
+COPY run.sh /
 
 RUN mkdir -p /var/run/vsftpd/empty
 
-ENV FILM_PASSWORD
+ENV FILMS_PASSWORD ""
 
-RUN useradd films && \
-    echo "films:${FILM_PASSWORD}" |chpasswd
+RUN useradd films 
 
-CMD vsftpd
+CMD /run.sh
