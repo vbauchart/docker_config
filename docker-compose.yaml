@@ -166,7 +166,7 @@ services:
         #    ports:
         #      - "127.0.0.1:25:1025"
   traefik:
-    image: traefik:2.0
+    image: traefik:2.2
     #command: --api --docker
     networks:
       - webgateway
