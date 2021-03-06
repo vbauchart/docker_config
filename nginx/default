@@ -45,6 +45,10 @@ server {
 
 	server_name _;
 
+	location /jeux/web {
+		try_files $uri $uri/ =405;
+	        root /var/www/;
+	}
 	location /theme {
 		try_files $uri $uri/ =405;
 	        root /var/www/;
