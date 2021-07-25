@@ -12,7 +12,7 @@ providers:
 #accessLog: {}
 api:
   dashboard: true
-  insecure: true
+  #  insecure: true
 log:
   level: INFO
 certificatesResolvers:
