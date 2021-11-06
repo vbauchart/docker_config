@@ -243,16 +243,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /home/docker/build/traefik/cfg/traefik.yml:/traefik.yml
       - /home/docker/build/traefik/cfg/acme.json:/acme.json
-  weboob:
-    build: ./weboob/
-    image: weboob:custom
-    volumes:
-            #- /root/.gnupg/:/root/.gnupg/:ro
-      - /root/.password-store/:/root/.password-store/:ro
-      - /home/vincent/encfs_mount/weboob:/root/.config/weboob
-      - /home/vincent/encfs_mount/weboob/pass.txt:/home/vincent/encfs_mount/weboob/pass.txt:ro
-      - monitoring:/weboob_output/
-      - /tmp/weboob:/tmp/weboob/
     labels:
       - "traefik.http.routers.dashboard.rule=Host(`${HOST_URL}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
       - "traefik.http.routers.dashboard.entrypoints=https"
@@ -262,6 +252,18 @@ services:
       - "traefik.http.routers.dashboard.middlewares=auth"
       - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_HTPASSWD}"
       - "traefik.enable=true"
+        #  weboob:
+        #    build: ./weboob/
+        #    image: weboob:custom
+        #    volumes:
+        #            #- /root/.gnupg/:/root/.gnupg/:ro
+        #      - /root/.password-store/:/root/.password-store/:ro
+        #      - /home/vincent/encfs_mount/weboob:/root/.config/weboob
+        #      - /home/vincent/encfs_mount/weboob/pass.txt:/home/vincent/encfs_mount/weboob/pass.txt:ro
+        #      - monitoring:/weboob_output/
+        #      - /tmp/weboob:/tmp/weboob/
+        #    labels:
+        #      - "traefik.enable=false"
         #  ejabberd:
         #    build: ./ejabberd
         #    image: ejabberd
@@ -280,10 +282,29 @@ services:
         #      - "traefik.port=5280"
         #      - "traefik.frontend.rule=PathPrefix:/ejabberd"
         #      - "traefik.enable=true"
+        #  elastic:
+        #    image: elastic-custom
+        #    build: elastic
+        #    environment:
+        #      discovery.type: single-node
+        #      xpack.ml.enabled: "false"
+        #      #  ES_JAVA_OPTS: "-Xms256m -Xmx256m"
+        #    volumes:
+        #      - /home/vincent/docker/elastic/data:/usr/share/elasticsearch/data
+        #    mem_limit: 512M
+        #    networks:
+        #      - webgateway
+        #  openvpn:
+        #    image: kylemanna/openvpn
+        #    volumes:
+        #      - /home/vincent/docker/openvpn/:/etc/openvpn/
+
+
 
 networks:
   webgateway:
     driver: bridge
+
 
 volumes:
   monitoring:
