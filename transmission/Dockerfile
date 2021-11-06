@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM debian:stable-slim
 
 RUN apt update && \
     apt install -y transmission-daemon perl && \

@@ -75,10 +75,10 @@ server {
 # # encounter a bug. See https://github.com/Naereen/Nginx-Fancyindex-Theme/issues/10
 		fancyindex_name_length 255;
 
-		dav_methods PUT DELETE MKCOL COPY MOVE;
-		dav_ext_methods PROPFIND OPTIONS;
-		dav_access user:rw group:rw all:r;
-		create_full_put_path on;
+#		dav_methods PUT DELETE MKCOL COPY MOVE;
+#		dav_ext_methods PROPFIND OPTIONS;
+#		dav_access user:rw group:rw all:r;
+#		create_full_put_path on;
 	}
 
 	# pass PHP scripts to FastCGI server
