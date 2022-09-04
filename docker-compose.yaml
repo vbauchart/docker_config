@@ -2,6 +2,7 @@ version: "2"
 services:
   vaultwarden:
     image: vaultwarden/server:latest
+    user: 1:1000
     environment:
       #ADMIN_TOKEN:
       SIGNUPS_ALLOWED: "false"
@@ -27,8 +28,9 @@ services:
       - "traefik.http.services.vaultwarden-websocket.loadbalancer.server.port=3012"
       - "traefik.http.routers.vaultwarden-websocket.middlewares=vaultwarden-stripprefix"
       - "traefik.enable=true"
+    restart: unless-stopped
     networks:
-      - webgateway
+      - internal
   gotify:
     image: gotify/server
     environment:
@@ -45,23 +47,24 @@ services:
       - "traefik.http.services.gotify.loadbalancer.server.port=80"
       - "traefik.http.routers.gotify.middlewares=gotify-stripprefix"
       - "traefik.enable=true"
+    restart: unless-stopped
     networks:
-      - webgateway
+      - internal
 
   transmission:
     build: ./transmission
-    image: transmission:latest
     ports:
       - "51413:51413/udp"
       - "51413:51413"
     environment:
       TRANSMISSION_PASSWORD:
     networks:
-      - webgateway
+      - internal
+      - direct
     volumes:
       - /home/vincent/downloads:/var/lib/transmission-daemon/downloads
       - /home/docker/build/transmission/cfg/:/etc/transmission-daemon/
-    restart: always
+    restart: unless-stopped
     labels:
       - "traefik.http.services.transmission.loadbalancer.server.port=9091"
       - "traefik.http.routers.transmission.rule=Host(`${HOST_URL}`) && PathPrefix(`/transmission`)"
@@ -82,13 +85,13 @@ services:
         #      - "8384:8384"
   nextcloud:
     build: ./docker-nextcloud
-    image: nextcloud:latest
+    #image: nextcloud:php8
     networks:
-      - webgateway
+      - internal
     volumes:
       - /home/vincent/docker/nextcloud:/data/
       - /home/vincent/downloads:/external/downloads
-    restart: always
+    restart: unless-stopped
     labels:
       - "traefik.http.routers.nextcloud.rule=Host(`${HOST_URL}`) && PathPrefix(`/nextcloud`)"
       - "traefik.http.routers.nextcloud.entrypoints=https"
@@ -103,8 +106,8 @@ services:
     environment:
       POSTGRES_PASSWORD:
     networks:
-      - webgateway
-    restart: always
+      - internal
+    restart: unless-stopped
     volumes:
       - /home/vincent/docker/postgres:/var/lib/postgresql/data
     labels:
@@ -113,17 +116,19 @@ services:
     build: ./ftp
     volumes:
       - /home/vincent/downloads:/home/films
-    restart: always
+    restart: unless-stopped
     environment:
       FILMS_PASSWORD:
     ports:
         - "21:21"
         - "21200-21220:21200-21220"
+    networks:
+      - direct
   downloads:
     build: ./nginx
     volumes:
       - /home/vincent/downloads:/var/www/html
-    restart: always
+    restart: unless-stopped
     labels:
       - "traefik.http.routers.downloads-http.rule=Host(`${HOST_URL}`) && PathPrefix(`/downloads-${DOWNLOADS_TOKEN}`)"
       - "traefik.http.routers.downloads-http.entrypoints=https"
@@ -135,12 +140,12 @@ services:
       - "traefik.http.middlewares.downloads-http-redirect-slash.redirectregex.replacement=$${1}/"
       - "traefik.enable=true"
     networks:
-      - webgateway
+      - internal
   jeux:
     image: nginx:latest
     volumes:
       - /home/vincent/dev_clement/web/:/usr/share/nginx/html
-    restart: always
+    restart: unless-stopped
     labels:
       - "traefik.http.routers.jeux.rule=Host(`${HOST_URL}`) && PathPrefix(`/jeux`)"
       - "traefik.http.routers.jeux.entrypoints=https"
@@ -150,7 +155,7 @@ services:
       - "traefik.http.middlewares.jeux-stripprefix.stripprefix.prefixes=/jeux"
       - "traefik.enable=true"
     networks:
-      - webgateway
+      - internal
   grafana:
     image: grafana/grafana:latest
     volumes:
@@ -170,9 +175,9 @@ services:
       - "traefik.http.middlewares.grafana-stripprefix.stripprefix.prefixes=/grafana"
       - "traefik.enable=true"
     networks:
-      - webgateway
+      - internal
   telegraf:
-    build: ./influxdata-docker/telegraf/1.9/alpine
+          #build: ./influxdata-docker/telegraf/1.9/alpine
     image: telegraf
     hostname: kimsufi
     volumes:
@@ -213,7 +218,7 @@ services:
       - "traefik.http.services.influxdb.loadbalancer.server.port=8086"
       - "traefik.enable=true"
     networks:
-      - webgateway
+      - internal
         #  mailhog:
         #    build: ./mailhog/MailHog
         #    image: mailhog
@@ -231,10 +236,11 @@ services:
         #    ports:
         #      - "127.0.0.1:25:1025"
   traefik:
-    image: traefik:2.4
+    image: traefik:2.8
     #command: --api --docker
     networks:
       - webgateway
+      - internal
     ports:
       - "443:443"
       - "80:80"
@@ -252,6 +258,7 @@ services:
       - "traefik.http.routers.dashboard.middlewares=auth"
       - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_HTPASSWD}"
       - "traefik.enable=true"
+      - "traefik.docker.network=internal"
         #  weboob:
         #    build: ./weboob/
         #    image: weboob:custom
@@ -302,7 +309,11 @@ services:
 
 
 networks:
+  direct:
+    driver: bridge
   webgateway:
+    driver: bridge
+  internal:
     driver: bridge
 
 
