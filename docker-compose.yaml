@@ -100,16 +100,27 @@ services:
       - "traefik.http.routers.nextcloud.middlewares=nextcloud-stripprefix"
       - "traefik.http.middlewares.nextcloud-stripprefix.stripprefix.prefixes=/nextcloud"
       - "traefik.enable=true"
+        #  postgres96:
+        #    build: ./postgres/9.6/alpine/
+        #    environment:
+        #      POSTGRES_PASSWORD:
+        #    networks:
+        #      - webgateway
+        #    restart: unless-stopped
+        #    volumes:
+        #      - /home/vincent/docker/postgres:/var/lib/postgresql/data
+        #    labels:
+        #      - "traefik.enable=false"
   database:
-    build: ./postgres/9.6/alpine/
-    image: postgres:latest
+    build: ./postgres/14/alpine/
+    #image: postgres:14
     environment:
       POSTGRES_PASSWORD:
     networks:
       - internal
     restart: unless-stopped
     volumes:
-      - /home/vincent/docker/postgres:/var/lib/postgresql/data
+      - /home/vincent/docker/postgres14:/var/lib/postgresql/data
     labels:
       - "traefik.enable=false"
   downloads-ftp:
