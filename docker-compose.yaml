@@ -63,7 +63,7 @@ services:
       - direct
     volumes:
       - /home/vincent/downloads:/var/lib/transmission-daemon/downloads
-      - /home/docker/build/transmission/cfg/:/etc/transmission-daemon/
+      - /home/vincent/docker/transmission/cfg/:/etc/transmission-daemon/
     restart: unless-stopped
     labels:
       - "traefik.http.services.transmission.loadbalancer.server.port=9091"
