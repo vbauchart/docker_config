@@ -111,8 +111,8 @@ services:
         #    labels:
         #      - "traefik.enable=false"
   database:
-    build: ./postgres/14/alpine/
-    #image: postgres:14
+    #build: ./postgres/14/alpine/
+    image: postgres:14
     environment:
       POSTGRES_PASSWORD:
     networks:
