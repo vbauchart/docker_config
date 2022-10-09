@@ -184,20 +184,35 @@ services:
       - "traefik.enable=true"
     networks:
       - traefik
-  telegraf:
-          #build: ./influxdata-docker/telegraf/1.9/alpine
-    image: telegraf
-    hostname: kimsufi
+  prometheus:
+    image: quay.io/prometheus/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml" 
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+      - "--storage.tsdb.retention.time=365d"
     volumes:
-    - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
-    - /var/run/utmp:/var/run/utmp
-    - monitoring:/weboob_output/
-    - /tmp/telegraf:/tmp/telegraf/
+      - /home/docker/build/prometheus/:/etc/prometheus/
+      - /home/vincent/docker/prometheus/:/prometheus/
     restart: always
     networks:
       - traefik
     labels:
       - "traefik.enable=false"
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    #  - '--web.listen-address=localhost:9100'
+    #network_mode: host
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+    networks:
+      - traefik
   influxdb:
     image: influxdb:2.2
     volumes:

@@ -10,6 +10,8 @@ providers:
   docker:
       exposedByDefault: false
 #accessLog: {}
+metrics:
+  prometheus: {}
 api:
   dashboard: true
   #  insecure: true
