@@ -30,7 +30,7 @@ services:
       - "traefik.enable=true"
     restart: unless-stopped
     networks:
-      - internal
+      - traefik
   gotify:
     image: gotify/server
     environment:
@@ -49,7 +49,7 @@ services:
       - "traefik.enable=true"
     restart: unless-stopped
     networks:
-      - internal
+      - traefik
 
   transmission:
     build: ./transmission
@@ -59,8 +59,7 @@ services:
     environment:
       TRANSMISSION_PASSWORD:
     networks:
-      - internal
-      - direct
+      - traefik
     volumes:
       - /home/vincent/downloads:/var/lib/transmission-daemon/downloads
       - /home/vincent/docker/transmission/cfg/:/etc/transmission-daemon/
@@ -87,7 +86,7 @@ services:
     build: ./docker-nextcloud
     #image: nextcloud:php8
     networks:
-      - internal
+      - traefik
     volumes:
       - /home/vincent/docker/nextcloud:/data/
       - /home/vincent/downloads:/external/downloads
@@ -117,7 +116,7 @@ services:
     environment:
       POSTGRES_PASSWORD:
     networks:
-      - internal
+      - traefik
     restart: unless-stopped
     volumes:
       - /home/vincent/docker/postgres14:/var/lib/postgresql/data
@@ -133,8 +132,6 @@ services:
     ports:
         - "21:21"
         - "21200-21220:21200-21220"
-    networks:
-      - direct
   downloads:
     build: ./nginx
     volumes:
@@ -151,7 +148,7 @@ services:
       - "traefik.http.middlewares.downloads-http-redirect-slash.redirectregex.replacement=$${1}/"
       - "traefik.enable=true"
     networks:
-      - internal
+      - traefik
   jeux:
     image: nginx:latest
     volumes:
@@ -166,7 +163,7 @@ services:
       - "traefik.http.middlewares.jeux-stripprefix.stripprefix.prefixes=/jeux"
       - "traefik.enable=true"
     networks:
-      - internal
+      - traefik
   grafana:
     image: grafana/grafana:latest
     volumes:
@@ -186,7 +183,7 @@ services:
       - "traefik.http.middlewares.grafana-stripprefix.stripprefix.prefixes=/grafana"
       - "traefik.enable=true"
     networks:
-      - internal
+      - traefik
   telegraf:
           #build: ./influxdata-docker/telegraf/1.9/alpine
     image: telegraf
@@ -198,7 +195,7 @@ services:
     - /tmp/telegraf:/tmp/telegraf/
     restart: always
     networks:
-      - internal
+      - traefik
     labels:
       - "traefik.enable=false"
   influxdb:
@@ -237,7 +234,7 @@ services:
       - "traefik.http.services.influxdb.loadbalancer.server.port=8086"
       - "traefik.enable=true"
     networks:
-      - internal
+      - traefik
         #  mailhog:
         #    build: ./mailhog/MailHog
         #    image: mailhog
@@ -258,8 +255,7 @@ services:
     image: traefik:2.8
     #command: --api --docker
     networks:
-      - webgateway
-      - internal
+      - traefik
     ports:
       - "443:443"
       - "80:80"
@@ -328,13 +324,8 @@ services:
 
 
 networks:
-  direct:
+  traefik:
     driver: bridge
-  webgateway:
-    driver: bridge
-  internal:
-    driver: bridge
-
 
 volumes:
   monitoring:
