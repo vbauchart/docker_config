@@ -122,6 +122,17 @@ services:
       - /home/vincent/docker/postgres14:/var/lib/postgresql/data
     labels:
       - "traefik.enable=false"
+  timescaledb:
+    image: timescale/timescaledb-ha:pg14-latest
+    environment:
+      POSTGRES_PASSWORD:
+    networks:
+      - prometheus
+    restart: unless-stopped
+    volumes:
+      - /home/vincent/docker/timescaledb14:/home/postgres/pgdata/data
+    labels:
+      - "traefik.enable=false"
   downloads-ftp:
     build: ./ftp
     volumes:
@@ -184,6 +195,7 @@ services:
       - "traefik.enable=true"
     networks:
       - traefik
+      - prometheus
   prometheus:
     image: quay.io/prometheus/prometheus
     command:
@@ -197,7 +209,7 @@ services:
       - /home/vincent/docker/prometheus/:/prometheus/
     restart: always
     networks:
-      - traefik
+      - prometheus
     labels:
       - "traefik.enable=false"
   node_exporter:
@@ -212,7 +224,7 @@ services:
     volumes:
       - '/:/host:ro,rslave'
     networks:
-      - traefik
+      - prometheus
   influxdb:
     image: influxdb:2.2
     volumes:
@@ -271,6 +283,7 @@ services:
     #command: --api --docker
     networks:
       - traefik
+      - prometheus
     ports:
       - "443:443"
       - "80:80"
@@ -288,7 +301,7 @@ services:
       - "traefik.http.routers.dashboard.middlewares=auth"
       - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_HTPASSWD}"
       - "traefik.enable=true"
-      - "traefik.docker.network=internal"
+      - "traefik.docker.network=build_traefik"
         #  weboob:
         #    build: ./weboob/
         #    image: weboob:custom
@@ -341,6 +354,6 @@ services:
 networks:
   traefik:
     driver: bridge
+  prometheus:
+    driver: bridge
 
-volumes:
-  monitoring:
