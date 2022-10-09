@@ -133,6 +133,19 @@ services:
       - /home/vincent/docker/timescaledb14:/home/postgres/pgdata/data
     labels:
       - "traefik.enable=false"
+  promscale:
+    image: timescale/promscale
+    environment:
+      PROMSCALE_DB_HOST: timescaledb
+      PROMSCALE_DB_USER: promscale
+      PROMSCALE_DB_NAME: promscale
+      PROMSCALE_DB_SSL_MODE: allow
+      PROMSCALE_DB_PASSWORD:
+    networks:
+      - prometheus
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=false"
   downloads-ftp:
     build: ./ftp
     volumes:
@@ -200,10 +213,8 @@ services:
     image: quay.io/prometheus/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml" 
-      - "--storage.tsdb.path=/prometheus"
-      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
-      - "--web.console.templates=/usr/share/prometheus/consoles"
-      - "--storage.tsdb.retention.time=365d"
+        #  - "--storage.tsdb.path=/prometheus"
+      - "--enable-feature=agent"
     volumes:
       - /home/docker/build/prometheus/:/etc/prometheus/
       - /home/vincent/docker/prometheus/:/prometheus/
