@@ -122,30 +122,6 @@ services:
       - /home/vincent/docker/postgres14:/var/lib/postgresql/data
     labels:
       - "traefik.enable=false"
-  timescaledb:
-    image: timescale/timescaledb-ha:pg14-latest
-    environment:
-      POSTGRES_PASSWORD:
-    networks:
-      - prometheus
-    restart: unless-stopped
-    volumes:
-      - /home/vincent/docker/timescaledb14:/home/postgres/pgdata/data
-    labels:
-      - "traefik.enable=false"
-  promscale:
-    image: timescale/promscale
-    environment:
-      PROMSCALE_DB_HOST: timescaledb
-      PROMSCALE_DB_USER: promscale
-      PROMSCALE_DB_NAME: promscale
-      PROMSCALE_DB_SSL_MODE: allow
-      PROMSCALE_DB_PASSWORD:
-    networks:
-      - prometheus
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=false"
   downloads-ftp:
     build: ./ftp
     volumes:
