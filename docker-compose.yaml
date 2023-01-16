@@ -149,21 +149,21 @@ services:
       - "traefik.enable=true"
     networks:
       - traefik
-  jeux:
-    image: nginx:latest
-    volumes:
-      - /home/vincent/dev_clement/web/:/usr/share/nginx/html
-    restart: unless-stopped
-    labels:
-      - "traefik.http.routers.jeux.rule=Host(`${HOST_URL}`) && PathPrefix(`/jeux`)"
-      - "traefik.http.routers.jeux.entrypoints=https"
-      - "traefik.http.routers.jeux.tls=true"
-      - "traefik.http.routers.jeux.tls.certresolver=default"
-      - "traefik.http.routers.jeux.middlewares=jeux-stripprefix"
-      - "traefik.http.middlewares.jeux-stripprefix.stripprefix.prefixes=/jeux"
-      - "traefik.enable=true"
-    networks:
-      - traefik
+        #  jeux:
+        #    image: nginx:latest
+        #    volumes:
+        #      - /home/vincent/dev_clement/web/:/usr/share/nginx/html
+        #    restart: unless-stopped
+        #    labels:
+        #      - "traefik.http.routers.jeux.rule=Host(`${HOST_URL}`) && PathPrefix(`/jeux`)"
+        #      - "traefik.http.routers.jeux.entrypoints=https"
+        #      - "traefik.http.routers.jeux.tls=true"
+        #      - "traefik.http.routers.jeux.tls.certresolver=default"
+        #      - "traefik.http.routers.jeux.middlewares=jeux-stripprefix"
+        #      - "traefik.http.middlewares.jeux-stripprefix.stripprefix.prefixes=/jeux"
+        #      - "traefik.enable=true"
+        #    networks:
+        #      - traefik
   grafana:
     image: grafana/grafana:latest
     volumes:
