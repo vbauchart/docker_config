@@ -189,8 +189,9 @@ services:
     image: quay.io/prometheus/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml" 
-        #  - "--storage.tsdb.path=/prometheus"
-      - "--enable-feature=agent"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=4y"
+        #- "--enable-feature=agent"
     volumes:
       - /home/docker/build/prometheus/:/etc/prometheus/
       - /home/vincent/docker/prometheus/:/prometheus/
