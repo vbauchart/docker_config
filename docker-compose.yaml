@@ -11,7 +11,6 @@ services:
     volumes:
       - /home/vincent/docker/vaultwarden/:/data
     labels:
-      - "traefik.http.routers.vaultwarden-admin.rule=Host(`${HOST_URL}`) && PathPrefix(`/admin`)"
       - "traefik.http.middlewares.vaultwarden-stripprefix.stripprefix.prefixes=/vaultwarden"
       - "traefik.http.routers.vaultwarden.rule=Host(`${HOST_URL}`) && PathPrefix(`/vaultwarden`)"
       - "traefik.http.routers.vaultwarden.service=vaultwarden"
@@ -267,7 +266,7 @@ services:
         #    ports:
         #      - "127.0.0.1:25:1025"
   traefik:
-    image: traefik:2.8
+    image: traefik:2.10
     #command: --api --docker
     networks:
       - traefik

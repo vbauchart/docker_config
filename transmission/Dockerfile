@@ -1,4 +1,4 @@
-FROM debian:stable-slim
+FROM debian:bookworm-slim
 
 RUN apt update && \
     apt install -y transmission-daemon perl && \
