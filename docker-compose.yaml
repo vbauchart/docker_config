@@ -75,13 +75,12 @@ services:
         #      - "22000:22000"
         #      - "8384:8384"
   nextcloud:
-    build: ./docker-nextcloud
+    build: ../docker-nextcloud
     #image: nextcloud:php8
     networks:
       - traefik
     volumes:
       - /home/vincent/docker/nextcloud:/data/
-      - /home/vincent/downloads:/external/downloads
     restart: unless-stopped
     labels:
       - "traefik.http.routers.nextcloud.rule=Host(`${HOST_URL}`) && PathPrefix(`/nextcloud`)"
