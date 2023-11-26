@@ -19,13 +19,6 @@ services:
       - "traefik.http.routers.vaultwarden.tls.certresolver=default"
       - "traefik.http.services.vaultwarden.loadbalancer.server.port=80"
       - "traefik.http.routers.vaultwarden.middlewares=vaultwarden-stripprefix"
-      - "traefik.http.routers.vaultwarden-websocket.rule=Host(`${HOST_URL}`) && Path(`/vaultwarden/notifications/hub`)"
-      - "traefik.http.routers.vaultwarden-websocket.service=vaultwarden-websocket"
-      - "traefik.http.routers.vaultwarden-websocket.entrypoints=https"
-      - "traefik.http.routers.vaultwarden-websocket.tls=true"
-      - "traefik.http.routers.vaultwarden-websocket.tls.certresolver=default"
-      - "traefik.http.services.vaultwarden-websocket.loadbalancer.server.port=3012"
-      - "traefik.http.routers.vaultwarden-websocket.middlewares=vaultwarden-stripprefix"
       - "traefik.enable=true"
     restart: unless-stopped
     networks:
