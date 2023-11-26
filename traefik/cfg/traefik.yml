@@ -18,9 +18,14 @@ api:
 log:
   level: INFO
 certificatesResolvers:
-  default:
+  old:
     acme:
       email: nomorsad.poubelle@gmail.com
       storage: /acme.json
       httpChallenge:
         entryPoint: web
+  default:
+    acme:
+      dnsChallenge:
+        provider: ovh
+        delayBeforeCheck: 0
