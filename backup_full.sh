@@ -14,7 +14,7 @@ tar czvf "$BACKUP_DIR/home.tar.gz" \
 	--one-file-system \
 	/home/
 
-docker-compose -f /home/docker/build/docker-compose.yaml exec -u postgres database pg_dumpall | gzip >$BACKUP_DIR/database_backup.sql.gz
+docker compose -f /srv/docker_config/docker-compose.yaml exec -u postgres database pg_dumpall | gzip >$BACKUP_DIR/database_backup.sql.gz
 
 tar czvf $BACKUP_DIR/vaultwarden.tar.gz /home/vincent/docker/vaultwarden
 

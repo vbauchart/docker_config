@@ -54,7 +54,7 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.http.services.transmission.loadbalancer.server.port=9091"
-      - "traefik.http.routers.transmission.rule=Host(`${HOST_URL}`) && PathPrefix(`/transmission`)"
+      - "traefik.http.routers.transmission.rule=Host(`torrent.${HOST_URL}`)"
       - "traefik.http.routers.transmission.entrypoints=https"
       - "traefik.http.routers.transmission.tls=true"
       - "traefik.http.routers.transmission.tls.certresolver=default"
@@ -160,18 +160,16 @@ services:
     volumes:
       - /home/vincent/docker/grafana/:/var/lib/grafana/
     environment:
-      GF_SERVER_ROOT_URL: "https://ns3078381.ip-188-165-208.eu/grafana/"
+      GF_SERVER_ROOT_URL: "https://domos.${HOST_URL}"
       GF_SECURITY_ADMIN_PASSWORD:
       GF_SMTP_HOST: "mailhog:1025"
       GF_SMTP_ENABLED: "true"
     restart: always
     labels:
-      - "traefik.http.routers.grafana.rule=Host(`${HOST_URL}`) && PathPrefix(`/grafana`)"
+      - "traefik.http.routers.grafana.rule=Host(`domos.${HOST_URL}`)"
       - "traefik.http.routers.grafana.entrypoints=https"
       - "traefik.http.routers.grafana.tls=true"
       - "traefik.http.routers.grafana.tls.certresolver=default"
-      - "traefik.http.routers.grafana.middlewares=grafana-stripprefix"
-      - "traefik.http.middlewares.grafana-stripprefix.stripprefix.prefixes=/grafana"
       - "traefik.enable=true"
     networks:
       - traefik
@@ -231,12 +229,10 @@ services:
             #- "traefik.port=8086"
             #- "traefik.frontend.rule=PathPrefixStrip:/influxdb"
             #- "traefik.enable=true"
-      - "traefik.http.routers.influxdb.rule=Host(`${HOST_URL}`) && PathPrefix(`/influxdb`)"
+      - "traefik.http.routers.influxdb.rule=Host(`influx.${HOST_URL}`)"
       - "traefik.http.routers.influxdb.entrypoints=https"
       - "traefik.http.routers.influxdb.tls=true"
       - "traefik.http.routers.influxdb.tls.certresolver=default"
-      - "traefik.http.routers.influxdb.middlewares=influxdb-stripprefix"
-      - "traefik.http.middlewares.influxdb-stripprefix.stripprefix.prefixes=/influxdb"
       - "traefik.http.services.influxdb.loadbalancer.server.port=8086"
       - "traefik.enable=true"
     networks:
