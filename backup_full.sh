@@ -6,7 +6,8 @@ tar czvf "$BACKUP_DIR/home.tar.gz" \
 	--exclude="$BACKUP_DIR" \
        	--exclude=/home/vincent/downloads \
 	--exclude=/home/vincent/docker/nextcloud \
-	--exclude=/home/vincent/encfs \
+	--exclude=/home/vincent/encfs* \
+	--exclude=/home/vincent/gocryptfs* \
 	--exclude='/home/vincent/docker/influxdb*' \
 	--exclude=/home/vincent/docker/prometheus \
 	--exclude=/home/swapfile \
