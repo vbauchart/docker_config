@@ -126,13 +126,14 @@ services:
   downloads:
     build: ./nginx
     volumes:
-      - /home/vincent/downloads:/var/www/html
+      - /home/vincent/downloads:/var/www/html:ro
     restart: unless-stopped
     labels:
       - "traefik.http.routers.downloads-http.rule=Host(`${HOST_URL}`) && PathPrefix(`/downloads-${DOWNLOADS_TOKEN}`)"
       - "traefik.http.routers.downloads-http.entrypoints=https"
       - "traefik.http.routers.downloads-http.tls=true"
       - "traefik.http.routers.downloads-http.tls.certresolver=default"
+      - "traefik.http.services.download-http.loadbalancer.server.port=8080"
       - "traefik.http.routers.downloads-http.middlewares=downloads-http-redirect-slash,downloads-http-stripprefix"
       - "traefik.http.middlewares.downloads-http-stripprefix.stripprefix.prefixes=/downloads-${DOWNLOADS_TOKEN}"
       - "traefik.http.middlewares.downloads-http-redirect-slash.redirectregex.regex=^(https://${HOST_URL}/downloads-${DOWNLOADS_TOKEN})$$"
