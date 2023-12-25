@@ -210,7 +210,7 @@ services:
     networks:
       - prometheus
   influxdb:
-    image: influxdb:2.4
+    image: influxdb:2.7
     volumes:
             #- /home/vincent/docker/influxdb/:/var/lib/influxdb/
       - /home/vincent/docker/influxdb2/:/var/lib/influxdb2/
