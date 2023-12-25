@@ -189,6 +189,12 @@ services:
       - prometheus
     labels:
       - "traefik.enable=false"
+  fail2ban_exporter:
+    image: registry.gitlab.com/hectorjsmith/fail2ban-prometheus-exporter:latest
+    volumes:
+      - /var/run/fail2ban/:/var/run/fail2ban:ro
+    networks:
+      - prometheus
   node_exporter:
     image: quay.io/prometheus/node-exporter:latest
     container_name: node_exporter
