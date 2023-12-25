@@ -19,8 +19,7 @@
 # Default server configuration
 #
 server {
-	listen 80 default_server;
-	listen [::]:80 default_server;
+	listen 8080 default_server;
 
 	# SSL configuration
 	#
@@ -39,6 +38,12 @@ server {
 	# include snippets/snakeoil.conf;
 
 	root /var/www/html;
+
+	proxy_temp_path /tmp/proxy_temp;
+	client_body_temp_path /tmp/client_temp;
+	fastcgi_temp_path /tmp/fastcgi_temp;
+	uwsgi_temp_path /tmp/uwsgi_temp;
+	scgi_temp_path /tmp/scgi_temp;
 
 	# Add index.php to the list if you are using PHP
 	index index.html index.htm index.nginx-debian.html;
