@@ -1,4 +1,3 @@
-version: "2"
 services:
   vaultwarden:
     image: vaultwarden/server:latest
@@ -8,6 +7,7 @@ services:
       SIGNUPS_ALLOWED: "false"
       WEBSOCKET_PORT: 443
       WEBSOCKET_ENABLED: "true"
+      DOMAIN: "https://vault.${HOST_URL}"
     volumes:
       - /home/vincent/docker/vaultwarden/:/data
     labels:
@@ -102,6 +102,12 @@ services:
       - /home/vincent/docker/postgres14:/var/lib/postgresql/data
     labels:
       - "traefik.enable=false"
+  redis:
+    image: redis:7
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=false"
   downloads-ftp:
     build: ./ftp
     volumes:
@@ -112,6 +118,31 @@ services:
     ports:
         - "21:21"
         - "21200-21220:21200-21220"
+  jellyfin:
+    image: jellyfin/jellyfin
+    volumes:
+      - /home/vincent/downloads:/media:ro
+      - /srv/volumes/jellyfin/cache:/cache
+      - /srv/volumes/jellyfin/config:/config
+      - /var/log/jellyfin:/var/log/jellyfin
+    environment:
+      JELLYFIN_LOG_DIR: /var/log/jellyfin/
+    restart: unless-stopped
+    labels:
+      - "traefik.http.routers.jellyfin.rule=Host(`media.${HOST_URL}`)"
+      - "traefik.http.routers.jellyfin.entrypoints=https"
+      - "traefik.http.routers.jellyfin.tls=true"
+      - "traefik.http.routers.jellyfin.tls.certresolver=default"
+      - "traefik.http.routers.jellyfin.middlewares=metric-error"
+        #- "traefik.http.routers.jelllyfin-metrics.rule=Path(`/metrics`)"
+        #- "traefik.http.routers.jelllyfin-metrics.middlewares=metric-error"
+      - "traefik.http.middlewares.metric-error.replacepathregex.regex=^/metrics.*"
+      - "traefik.http.middlewares.metric-error.replacepathregex.replacement=/404.html"
+      - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
+      - "traefik.enable=true"
+    networks:
+      - traefik
+      - prometheus
   downloads:
     build: ./nginx
     volumes:
@@ -257,4 +288,3 @@ networks:
     driver: bridge
   prometheus:
     driver: bridge
-
