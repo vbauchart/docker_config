@@ -1,2 +1,3 @@
 traefik/cfg/acme.json
 .env
+backup.env

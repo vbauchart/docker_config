@@ -23,3 +23,16 @@ docker compose -f /srv/docker_config/docker-compose.yaml exec -u postgres databa
 tar czvf $BACKUP_DIR/vaultwarden.tar.gz /home/vincent/docker/vaultwarden
 
 tar czvf $BACKUP_DIR/docker-compose.tar.gz /home/docker/build/
+
+source backup.env
+
+HOST=$(hostname)
+
+restic snapshots --host $HOST
+
+restic backup "$BACKUP_DIR"
+
+restic check
+restic forget --host $HOST --keep-last 5 --prune
+
+restic snapshots
