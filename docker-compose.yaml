@@ -100,12 +100,14 @@ services:
       - traefik
     volumes:
       - /home/vincent/docker/postgres14:/var/lib/postgresql/data
+    restart: unless-stopped
     labels:
       - "traefik.enable=false"
   redis:
     image: redis:7
     networks:
       - traefik
+    restart: unless-stopped
     labels:
       - "traefik.enable=false"
   downloads-ftp:
