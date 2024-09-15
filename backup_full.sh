@@ -1,5 +1,8 @@
 #!/bin/bash -xe
 
+exec >>/var/log/backup_full.log 2>&1
+
+
 BACKUP_DIR=/home/vincent/backup
 
 tar czvf "$BACKUP_DIR/home.tar.gz" \
