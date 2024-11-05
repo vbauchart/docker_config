@@ -76,6 +76,7 @@ services:
     #image: nextcloud:php8
     networks:
       - traefik
+      - database
     volumes:
       - /home/vincent/docker/nextcloud:/data/
     restart: unless-stopped
@@ -97,7 +98,7 @@ services:
     environment:
       POSTGRES_PASSWORD:
     networks:
-      - traefik
+      - database
     volumes:
       - /home/vincent/docker/postgres14:/var/lib/postgresql/data
     restart: unless-stopped
@@ -287,6 +288,8 @@ services:
 
 networks:
   traefik:
+    driver: bridge
+  database:
     driver: bridge
   prometheus:
     driver: bridge
