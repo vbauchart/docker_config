@@ -1,6 +1,7 @@
 #!/bin/bash -xe
 
-exec >>/var/log/backup_full.log 2>&1
+exec >  >(ts|tee -ia /var/log/backup.log)
+exec 2> >(ts|tee -ia /var/log/backup.log >&2)
 
 
 BACKUP_DIR=/home/vincent/backup
@@ -24,7 +25,7 @@ tar czvf $BACKUP_DIR/vaultwarden.tar.gz /home/vincent/docker/vaultwarden
 
 tar czvf $BACKUP_DIR/docker-compose.tar.gz /home/docker/build/
 
-source backup.env
+source "$(dirname $(readlink -f "$0"))/backup.env"
 
 HOST=$(hostname)
 
