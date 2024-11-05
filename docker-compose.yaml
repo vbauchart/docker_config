@@ -255,7 +255,7 @@ services:
         #    ports:
         #      - "127.0.0.1:25:1025"
   traefik:
-    image: traefik:2.10
+    image: traefik:3.1
     #command: --api --docker
     networks:
       - traefik
