@@ -94,13 +94,13 @@ services:
       - "traefik.http.middlewares.nextcloud-dav.replacepathregex.replacement=/remote.php/dav/"
       - "traefik.enable=true"
   database:
-    image: postgres:14
+    image: postgres:17
     environment:
       POSTGRES_PASSWORD:
     networks:
       - database
     volumes:
-      - /home/vincent/docker/postgres14:/var/lib/postgresql/data
+      - /home/vincent/docker/postgres17:/var/lib/postgresql/data
     restart: unless-stopped
     labels:
       - "traefik.enable=false"
