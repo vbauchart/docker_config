@@ -112,16 +112,6 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=false"
-  downloads-ftp:
-    build: ./ftp
-    volumes:
-      - /home/vincent/downloads:/home/films
-    restart: unless-stopped
-    environment:
-      FILMS_PASSWORD:
-    ports:
-        - "21:21"
-        - "21200-21220:21200-21220"
   jellyfin:
     image: jellyfin/jellyfin
     volumes:
