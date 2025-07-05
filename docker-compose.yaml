@@ -108,7 +108,7 @@ services:
   redis:
     image: redis:7
     networks:
-      - traefik
+      - database
     restart: unless-stopped
     labels:
       - "traefik.enable=false"
