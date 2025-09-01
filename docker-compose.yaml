@@ -5,9 +5,8 @@ services:
     environment:
       #ADMIN_TOKEN:
       SIGNUPS_ALLOWED: "false"
-      WEBSOCKET_PORT: 443
-      WEBSOCKET_ENABLED: "true"
       DOMAIN: "https://vault.${HOST_URL}"
+      WEBSOCKET_ENABLED: "true"
     volumes:
       - /home/vincent/docker/vaultwarden/:/data
     labels:
@@ -246,7 +245,7 @@ services:
         #    ports:
         #      - "127.0.0.1:25:1025"
   traefik:
-    image: traefik:3.2
+    image: traefik:3
     #command: --api --docker
     networks:
       - traefik
