@@ -27,7 +27,7 @@ for my $torrent_line (@torrent_list_raw) {
 		for my $file_info (@torrent_files) {
 			chomp $torrent_line;
 
-			if ( $file_info =~ /^\s*\d+: 100% \S+\s+\w+\s+\S+\s+.B\s+(.+)$/ ) {
+			if ( $file_info =~ /\s\wB\s\s(.+?)$/ ) {
 				my $file = $1;
 				$file_count{"./".$file}++;
 			}

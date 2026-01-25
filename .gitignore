@@ -1,3 +1,4 @@
 traefik/cfg/acme.json
 .env
 backup.env
+tunnel/host_keys/

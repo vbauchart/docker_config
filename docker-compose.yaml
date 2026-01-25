@@ -154,6 +154,21 @@ services:
       - "traefik.enable=true"
     networks:
       - traefik
+  homeassistant:
+    build: ./tunnel
+    restart: unless-stopped
+    labels:
+      - "traefik.http.routers.homeassistant.rule=Host(`homeassistant.${HOST_URL}`)"
+      - "traefik.http.routers.homeassistant.entrypoints=https"
+      - "traefik.http.routers.homeassistant.tls=true"
+      - "traefik.http.routers.homeassistant.tls.certresolver=default"
+      - "traefik.http.services.homeassistant.loadbalancer.server.port=8123"
+      - "traefik.http.services.homeassistant.loadBalancer.healthcheck.path=/"
+      - "traefik.enable=true"
+    ports:
+      - 2222:2222
+    networks:
+      - traefik
   grafana:
     image: grafana/grafana:latest
     volumes:
@@ -275,6 +290,11 @@ services:
       - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_HTPASSWD}"
       - "traefik.enable=true"
       - "traefik.docker.network=docker_config_traefik"
+      #- "traefik.http.routers.homeassistant.rule=Host(`homeassistant.${HOST_URL}`)"
+      #- "traefik.http.routers.homeassistant.entrypoints=https"
+      #- "traefik.http.routers.homeassistant.tls=true"
+      #- "traefik.http.routers.homeassistant.service=homeassistant"
+      #- "traefik.http.services.homeassistant.loadBalancer.servers[0].url=http://localhost:9000/"
 
 networks:
   traefik:
