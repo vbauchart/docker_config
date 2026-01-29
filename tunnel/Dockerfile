@@ -10,7 +10,8 @@ COPY host_keys/ssh_host_ed25519_key* /etc/ssh/
 RUN chown -Rv tunnel:tunnel /etc/ssh/
 
 RUN mkdir /home/tunnel/.ssh
-ADD authorized_keys /home/tunnel/.ssh/
+
+COPY authorized_keys /home/tunnel/.ssh/
 RUN chown -Rv tunnel:tunnel /home/tunnel/.ssh && \
     chmod 700 /home/tunnel/.ssh && \
     chmod 600 /home/tunnel/.ssh/authorized_keys
